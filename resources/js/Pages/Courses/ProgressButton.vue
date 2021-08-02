@@ -1,12 +1,13 @@
 <template>
     <div>
-        <button class="bg-green-500 px-2 py-3 rounded text-white" @click="toggleProgress">
-            {{ this.isWatched ? 'Terminé ' : 'Terminé ?'}}
+        <button class="bg-green-500 px-2 py-3 rounded text-white" @click="toggleProgress()" v-on:click="emitEvent">
+            {{ this.isWatched ? 'Terminé' : 'Terminé ?'}}
         </button>
     </div>
 </template>
 
 <script>
+// import { eventBus } from '../../app.js';  
 export default {
      props:['episodeId', 'watchedEpisodes'],
 
@@ -20,11 +21,12 @@ export default {
      methods: {
          toggleProgress(){
              axios.post('/toggleProgress', {
-                 episodeId: this.episodeId,
+                 episodeId: this.episodeId
              })
-             .then(Response => {
-                 if (Response.status === 200) {
+             .then(response => {
+                 if (response.status === 200) {
                      this.isWatched = !this.isWatched ;
+                    //  this.eventBus.emit('toggleProgress', response.data);
                  }
              })
              .catch(error => console.log(error));

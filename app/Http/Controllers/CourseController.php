@@ -35,7 +35,7 @@ class CourseController extends Controller
     public function show(int $id) 
     {
         $course = Course::where('id', $id)->with('episodes')->first();
-        $watched = auth()->user()->episode;
+        $watched = auth()->user()->episodes;
         
         return Inertia::render('Courses/Show', [
             'course' => $course,

@@ -19374,10 +19374,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+// import { eventBus } from '../../app.js';
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['watchedEpisodes', 'episodes'],
-  mounted: function mounted() {
-    console.log(this.watchedEpisodes, this.episodes);
+  data: function data() {
+    return {
+      watchedEpisodesData: this.watchedEpisodes
+    };
+  },
+  computed: {
+    percentage: function percentage() {
+      var _this = this;
+
+      var filteredEp = this.episodes.filter(function (courseEp) {
+        return _this.watchedEpisodesData.find(function (watchedEp) {
+          return watchedEp.id === courseEp.id;
+        });
+      });
+      return Math.ceil(filteredEp.length / this.episodes.length * 100);
+    }
+  },
+  mounted: function mounted() {//  this.eventBus.on('toggleProgress', data => this.watchedEpisodesData = data);
   }
 });
 
@@ -19394,6 +19411,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+// import { eventBus } from '../../app.js';  
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['episodeId', 'watchedEpisodes'],
   data: function data() {
@@ -19408,9 +19426,9 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.post('/toggleProgress', {
         episodeId: this.episodeId
-      }).then(function (Response) {
-        if (Response.status === 200) {
-          _this.isWatched = !_this.isWatched;
+      }).then(function (response) {
+        if (response.status === 200) {
+          _this.isWatched = !_this.isWatched; //  this.eventBus.emit('toggleProgress', response.data);
         }
       })["catch"](function (error) {
         return console.log(error);
@@ -23440,8 +23458,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
+var _hoisted_1 = {
+  "class": "bg-gray-200 w-full"
+};
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)("div", null, " progressBar ");
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)("div", {
+    "class": "bg-green-500 text-white rounded text-center transition-width duration-500",
+    style: 'width:' + $options.percentage + '%'
+  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($options.percentage) + "%", 5
+  /* TEXT, STYLE */
+  )])]);
 }
 
 /***/ }),
@@ -23462,10 +23488,12 @@ __webpack_require__.r(__webpack_exports__);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)("button", {
     "class": "bg-green-500 px-2 py-3 rounded text-white",
-    onClick: _cache[1] || (_cache[1] = function () {
-      return $options.toggleProgress && $options.toggleProgress.apply($options, arguments);
-    })
-  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(this.isWatched ? 'Terminé ' : 'Terminé ?'), 1
+    onClick: [_cache[1] || (_cache[1] = function ($event) {
+      return $options.toggleProgress();
+    }), _cache[2] || (_cache[2] = function () {
+      return _ctx.emitEvent && _ctx.emitEvent.apply(_ctx, arguments);
+    })]
+  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(this.isWatched ? 'Terminé' : 'Terminé ?'), 1
   /* TEXT */
   )]);
 }
@@ -25043,18 +25071,28 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
-/* harmony import */ var _inertiajs_inertia_vue3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @inertiajs/inertia-vue3 */ "./node_modules/@inertiajs/inertia-vue3/dist/index.js");
-/* harmony import */ var _inertiajs_progress__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @inertiajs/progress */ "./node_modules/@inertiajs/progress/dist/index.js");
+/* harmony import */ var _Layouts_AppLayout_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Layouts/AppLayout.vue */ "./resources/js/Layouts/AppLayout.vue");
+/* harmony import */ var mitt__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! mitt */ "./node_modules/mitt/dist/mitt.mjs");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
+/* harmony import */ var _inertiajs_inertia_vue3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @inertiajs/inertia-vue3 */ "./node_modules/@inertiajs/inertia-vue3/dist/index.js");
+/* harmony import */ var _inertiajs_progress__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @inertiajs/progress */ "./node_modules/@inertiajs/progress/dist/index.js");
 var _window$document$getE;
 
-__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js"); //import Vue from 'vue';
 
 
 
 
-var appName = ((_window$document$getE = window.document.getElementsByTagName('title')[0]) === null || _window$document$getE === void 0 ? void 0 : _window$document$getE.innerText) || 'Laravel';
-(0,_inertiajs_inertia_vue3__WEBPACK_IMPORTED_MODULE_1__.createInertiaApp)({
+
+
+ // let eventBus = new Vue();
+// window.eventBus = eventBus;
+
+var appName = ((_window$document$getE = window.document.getElementsByTagName('title')[0]) === null || _window$document$getE === void 0 ? void 0 : _window$document$getE.innerText) || 'Laravel'; // const eventBus = mitt();
+// const app = createApp(App);
+// app.config.globalProperties.eventBus = eventBus;
+
+(0,_inertiajs_inertia_vue3__WEBPACK_IMPORTED_MODULE_3__.createInertiaApp)({
   title: function title(_title) {
     return "".concat(_title, " - ").concat(appName);
   },
@@ -25066,9 +25104,9 @@ var appName = ((_window$document$getE = window.document.getElementsByTagName('ti
         app = _ref.app,
         props = _ref.props,
         plugin = _ref.plugin;
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.createApp)({
+    return (0,vue__WEBPACK_IMPORTED_MODULE_2__.createApp)({
       render: function render() {
-        return (0,vue__WEBPACK_IMPORTED_MODULE_0__.h)(app, props);
+        return (0,vue__WEBPACK_IMPORTED_MODULE_2__.h)(app, props);
       }
     }).use(plugin).mixin({
       methods: {
@@ -25077,7 +25115,7 @@ var appName = ((_window$document$getE = window.document.getElementsByTagName('ti
     }).mount(el);
   }
 });
-_inertiajs_progress__WEBPACK_IMPORTED_MODULE_2__.InertiaProgress.init({
+_inertiajs_progress__WEBPACK_IMPORTED_MODULE_4__.InertiaProgress.init({
   color: '#4B5563'
 });
 
@@ -46794,6 +46832,23 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./node_modules/mitt/dist/mitt.mjs":
+/*!*****************************************!*\
+  !*** ./node_modules/mitt/dist/mitt.mjs ***!
+  \*****************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__(n){return{all:n=n||new Map,on:function(t,e){var i=n.get(t);i?i.push(e):n.set(t,[e])},off:function(t,e){var i=n.get(t);i&&(e?i.splice(i.indexOf(e)>>>0,1):n.set(t,[]))},emit:function(t,e){var i=n.get(t);i&&i.slice().map(function(n){n(e)}),(i=n.get("*"))&&i.slice().map(function(n){n(t,e)})}}}
+//# sourceMappingURL=mitt.mjs.map
 
 
 /***/ }),
