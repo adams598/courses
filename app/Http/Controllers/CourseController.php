@@ -9,6 +9,7 @@ use App\Models\Episode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
 
 class CourseController extends Controller
 {
@@ -41,6 +42,31 @@ class CourseController extends Controller
             'course' => $course,
             'watched' => $watched
         ]);
+    }
+
+    public function store(Request $request)
+    {
+
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+            'episodes' => ['required', 'array'],
+            'episodes.*.title' => 'required',
+            'episodes.*.description' => 'required',
+            'episodes.*.video_url' => 'required',
+
+        ]);
+         
+        $course = Course::create($request->all());
+
+
+        foreach($request->input('episodes') as $episode)
+        {
+            $episode['course_id'] = $course->id;
+            Episode::create($episode);
+        }
+
+       return Redirect::route('dashboard')->with('success', 'Félicitations!! la formation a bien été mise en ligne');
     }
 
     public function toggleProgress(Request $request)
