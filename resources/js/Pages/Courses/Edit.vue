@@ -2,7 +2,7 @@
     <app-layout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Dashboard
+                Modification de {{ courseData.title }}
             </h2>
         </template>
 
@@ -20,7 +20,7 @@
                 </label>
 
                 <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" type="text"
-                 v-model="form.title">
+                 v-model="courseData.title">
                  <div class="bg-red-200 text-red-800 p-4 my-2 rounded" v-if="this.$page.props.errors.title">
                            Ce champ est obligatoire
                 </div>
@@ -33,7 +33,7 @@
 
                 <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 
                 leading-tight focus:outline-none focus:shadow-outline" id="description" type="text"  
-                v-model="form.description"></textarea>
+                v-model="courseData.description"></textarea>
 
                 <div class="bg-red-200 text-red-800 p-4 my-2 rounded" v-if="this.$page.props.errors.description">
                          Ce champ est obligatoire
@@ -43,16 +43,16 @@
 
                 <div class="mb-4">
                     <h2 class="text-2xl"> Episodes de la formation</h2>
-                    <div v-for="(episode, index) in form.episodes" v-bind:key="index">
+                    <div v-for="(episode, index) in courseData.episodes" v-bind:key="index">
 
                         <label class="block text-gray-700 text-sm font-bold mb-2" :for="'title-'
                         +index">
-                            Titre de l'épisode n° {{ index + 1 }}
+                            Titre de l'épisode {{ index + 1 }}
                         </label>
 
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                         :id="'title-'+index" type="text"
-                        v-model="form.episodes[index].title">
+                        v-model="courseData.episodes[index].title">
 
                         <div class="bg-red-200 text-red-800 p-4 my-2 rounded" 
                         v-if="this.$page.props.errors['episodes.' + index +'.title']">
@@ -66,7 +66,7 @@
 
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                         :id="'description-'+index" type="text"
-                        v-model="form.episodes[index].description">
+                        v-model="courseData.episodes[index].description">
                         
                         <div class="bg-red-200 text-red-800 p-4 my-2 rounded" 
                         v-if="this.$page.props.errors['episodes.' + index +'.description']">
@@ -80,7 +80,7 @@
 
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-5" 
                         :id="'video_url-'+index" type="text"
-                        v-model="form.episodes[index].video_url">
+                        v-model="courseData.episodes[index].video_url">
 
                         <div class="bg-red-200 text-red-800 p-4 my-2 rounded" 
                         v-if="this.$page.props.errors['episodes.' + index +'.video_url']">
@@ -91,12 +91,12 @@
                 </div>
 
 
-                <button class="bg-green-600 rounded py-2 px-4 my-2 text-white block" v-if="form.episodes.length < 15" @click.prevent="add">+</button>
+                <button class="bg-green-600 rounded py-2 px-4 my-2 text-white block" v-if="courseData.episodes.length < 15" @click.prevent="add">+</button>
 
-                <button class="bg-red-600 rounded py-2 px-4 my-2 text-white block" v-if="form.episodes.length > 1" @click.prevent="remove">🗑️</button>
+                <button class="bg-red-600 rounded py-2 px-4 my-2 text-white block" v-if="courseData.episodes.length > 1" @click.prevent="remove">🗑️</button>
 
                 <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                    Créer ma formation
+                    Modifier ma formation
                 </button>
            
             </form>
@@ -109,39 +109,67 @@
 
 
 <script>
-    import AppLayout from '@/Layouts/AppLayout.vue'
+    import AppLayout from './../../Layouts/AppLayout.vue'
    // import { reactive } from 'vue'
     import { Inertia } from '@inertiajs/inertia' 
     import { useForm } from '@inertiajs/inertia-vue3'   
     export default {
-        props: {
-            errors: Object,
-        },
+
         components: {
             AppLayout,
         },
+        props: ['courses'],
+        props: {
+            errors: Object,
+            //course: Object,
+        },
+        props: ['course'],
 
-        setup () {
-          const form = useForm({
-            title: null,
-            description: null,
-            episodes: [
-                {title: null, description: null, video_url: null}
-            ]
-         })
+        data() {
+            return {
+                courseData: this.course,
+            }
+        },
+        methods: {
+            submit() {
+                this.$inertia.patch('/courses/' + this.courseData.id, this.courseData);
+            },
 
-          function submit() {
-            Inertia.post('/courses', form)
-          }
-          function add() {
-              this.form.episodes.push({title: null, description: null, video_url: null})
-          }
-          function remove() {
-              this.form.episodes.pop()
-          }
+            add() {
+                this.courseData.episodes.push({title: null, description: null, video_url: null});
+            },
+
+            remove() {
+                this.courseData.episodes.pop();
+            }
+        },
+
+        // setup () {
+
+        //     const form = useForm({
+        //     title: null,
+        //     description: null,
+        //     episodes: [
+        //         {title: null, description: null, video_url: null}
+        //     ]
+        //  })
+
+            // function courseData()
+            // {
+            //     this.courseData= this.course
+            // }
+        //   function submit() {
+        //     Inertia.patch('/courses/' + this.courseData.id, courseData);
+        //   }
+        //   function add() {
+        //       this.form.episodes.push({title: null, description: null, video_url: null});
+        //   }
+        //   function remove() {
+        //       this.form.episodes.pop();
+        //   }
           
 
-          return { form, submit , add, remove}
-  },
+        //   return {form, submit , add, remove}
+    //   },
     }
 </script>
